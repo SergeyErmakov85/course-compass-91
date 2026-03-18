@@ -49,8 +49,6 @@ const CourseNav = () => {
               Учебный план
             </span>
           </div>
-            </span>
-          </div>
           <div className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <button
