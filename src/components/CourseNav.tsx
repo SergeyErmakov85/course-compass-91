@@ -45,12 +45,10 @@ const CourseNav = () => {
       <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center gap-3">
-            <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-              ПсихИТ
-            </span>
-            <span className="w-px h-4 bg-border" />
             <span className="text-sm font-display font-semibold text-foreground">
               Учебный план
+            </span>
+          </div>
             </span>
           </div>
           <div className="hidden md:flex items-center gap-1">
