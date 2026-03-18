@@ -105,9 +105,7 @@ const Index = () => {
       <footer className="border-t border-border py-12 bg-card">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">
-            <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">ПсихИТ</span>
-            <span className="w-px h-4 bg-border" />
-            <span className="text-sm text-muted-foreground font-body">Информационные технологии в психологии</span>
+          <span className="text-sm font-display font-semibold text-foreground">Учебный план</span>
           </div>
           <span className="font-mono text-[11px] text-muted-foreground">
             © 2024—2025 · Учебный план
