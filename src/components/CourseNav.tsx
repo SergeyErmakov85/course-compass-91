@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
+import MobileMenu from "./MobileMenu";
 
 const landingLinks = [
   { id: "rationale", label: "Концепция" },
@@ -99,8 +101,12 @@ const LandingNav = () => {
               </button>
             ))}
           </div>
-          <div className="hidden md:flex items-center">
-            <span className="font-mono text-[11px] text-muted-foreground">04 модуля · 14 недель</span>
+          <div className="flex items-center gap-2">
+            <span className="hidden md:inline font-mono text-[11px] text-muted-foreground">04 модуля · 14 недель</span>
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
+            <MobileMenu />
           </div>
         </div>
       </div>
@@ -112,19 +118,27 @@ const BreadcrumbNav = ({ items }: { items: { label: string; to?: string }[] }) =
   return (
     <nav className="sticky top-0 z-40 glass-surface border-b border-border">
       <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-        <div className="flex items-center h-14 gap-2">
-          {items.map((item, i) => (
-            <span key={i} className="flex items-center gap-2">
-              {i > 0 && <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />}
-              {item.to ? (
-                <Link to={item.to} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  {item.label}
-                </Link>
-              ) : (
-                <span className="text-sm text-foreground font-medium">{item.label}</span>
-              )}
-            </span>
-          ))}
+        <div className="flex items-center justify-between h-14">
+          <div className="flex items-center gap-2">
+            {items.map((item, i) => (
+              <span key={i} className="flex items-center gap-2">
+                {i > 0 && <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />}
+                {item.to ? (
+                  <Link to={item.to} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {item.label}
+                  </Link>
+                ) : (
+                  <span className="text-sm text-foreground font-medium">{item.label}</span>
+                )}
+              </span>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
+            <MobileMenu />
+          </div>
         </div>
       </div>
     </nav>
