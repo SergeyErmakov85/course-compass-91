@@ -7,6 +7,7 @@ import ModuleCard from "@/components/ModuleCard";
 import type { ModuleData } from "@/components/ModuleCard";
 import ToolsSection from "@/components/ToolsSection";
 import MethodsSection from "@/components/MethodsSection";
+import ChiSquareSection from "@/components/ChiSquareSection";
 
 const modules: ModuleData[] = [
   {
