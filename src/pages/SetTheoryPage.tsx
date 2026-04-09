@@ -666,6 +666,258 @@ const CartesianSection = () => {
 };
 
 /* ═══════════════════════════════════════════
+   Section 7 — Отношения и классификация
+   ═══════════════════════════════════════════ */
+const RelationsSection = () => (
+  <div className="space-y-6">
+    {/* 7a — Equivalence */}
+    <div>
+      <h4 className="font-display font-semibold text-foreground text-sm mb-3">
+        7a. Отношение эквивалентности
+      </h4>
+      <p className="text-sm text-muted-foreground font-body mb-3">
+        Отношение <Tex math="R" /> на множестве <Tex math="A" /> является эквивалентностью, если выполнены три свойства:
+      </p>
+      <div className="grid sm:grid-cols-3 gap-3 mb-4">
+        {[
+          { title: "Рефлексивность", formula: "\\forall a \\in A:\\; aRa", example: "Каждый пациент принадлежит своей диагностической категории." },
+          { title: "Симметричность", formula: "aRb \\Rightarrow bRa", example: "Если пациент А в одной группе с Б, то и Б — с А." },
+          { title: "Транзитивность", formula: "aRb \\land bRc \\Rightarrow aRc", example: "Если А и Б в одном кластере, и Б и В — тоже, то А и В — в одном." },
+        ].map((p) => (
+          <div key={p.title} className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
+            <p className="font-display font-semibold text-xs text-foreground mb-1">{p.title}</p>
+            <div className="mb-2"><Tex math={p.formula} display /></div>
+            <p className="text-[10px] text-muted-foreground font-body">{p.example}</p>
+          </div>
+        ))}
+      </div>
+
+      <PsyExample text="Классификация по DSM-5: каждый класс эквивалентности — диагностическая категория (например, все пациенты с F41.1 = ГТР). Кластерный анализ автоматизирует этот процесс, формируя классы эквивалентности по мере сходства профилей." />
+
+      {/* Visual: equivalence classes */}
+      <div className="flex justify-center mt-4">
+        <svg viewBox="0 0 320 120" className="w-full max-w-[320px]">
+          {/* Class 1 */}
+          <rect x="10" y="15" width="90" height="90" rx="14" fill="hsl(var(--module-1))" fillOpacity="0.1" stroke="hsl(var(--module-1))" strokeWidth="1.5" />
+          <circle cx="35" cy="50" r="6" fill="hsl(var(--module-1))" fillOpacity="0.5" />
+          <circle cx="60" cy="40" r="6" fill="hsl(var(--module-1))" fillOpacity="0.5" />
+          <circle cx="50" cy="70" r="6" fill="hsl(var(--module-1))" fillOpacity="0.5" />
+          <circle cx="78" cy="65" r="6" fill="hsl(var(--module-1))" fillOpacity="0.5" />
+          <text x="55" y="112" textAnchor="middle" className="fill-muted-foreground text-[9px] font-mono">Депрессия</text>
+
+          {/* Class 2 */}
+          <rect x="115" y="15" width="90" height="90" rx="14" fill="hsl(var(--module-2))" fillOpacity="0.1" stroke="hsl(var(--module-2))" strokeWidth="1.5" />
+          <circle cx="140" cy="45" r="6" fill="hsl(var(--module-2))" fillOpacity="0.5" />
+          <circle cx="165" cy="55" r="6" fill="hsl(var(--module-2))" fillOpacity="0.5" />
+          <circle cx="185" cy="40" r="6" fill="hsl(var(--module-2))" fillOpacity="0.5" />
+          <text x="160" y="112" textAnchor="middle" className="fill-muted-foreground text-[9px] font-mono">ГТР</text>
+
+          {/* Class 3 */}
+          <rect x="220" y="15" width="90" height="90" rx="14" fill="hsl(var(--module-4))" fillOpacity="0.1" stroke="hsl(var(--module-4))" strokeWidth="1.5" />
+          <circle cx="250" cy="50" r="6" fill="hsl(var(--module-4))" fillOpacity="0.5" />
+          <circle cx="275" cy="60" r="6" fill="hsl(var(--module-4))" fillOpacity="0.5" />
+          <text x="265" y="112" textAnchor="middle" className="fill-muted-foreground text-[9px] font-mono">ОКР</text>
+        </svg>
+      </div>
+    </div>
+
+    {/* 7b — Order */}
+    <div>
+      <h4 className="font-display font-semibold text-foreground text-sm mb-3">
+        7b. Отношение порядка
+      </h4>
+
+      <div className="grid sm:grid-cols-2 gap-4 mb-4">
+        <div className="rounded-xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+          <p className="font-display font-semibold text-xs text-foreground mb-1">Частичный порядок</p>
+          <p className="text-[11px] text-muted-foreground font-body mb-2">
+            Рефлексивность + антисимметричность + транзитивность. Не все элементы сравнимы.
+          </p>
+          <div className="mb-2"><Tex math="a \le b \;\land\; b \le a \;\Rightarrow\; a = b" display /></div>
+          <PsyExample text="Ранжирование предпочтений в психосемантике: «важность» и «интерес» могут быть несравнимы между собой (не всё можно упорядочить)." />
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+          <p className="font-display font-semibold text-xs text-foreground mb-1">Линейный (полный) порядок</p>
+          <p className="text-[11px] text-muted-foreground font-body mb-2">
+            Частичный порядок, где все элементы сравнимы.
+          </p>
+          <div className="mb-2"><Tex math="a_1 < a_2 < a_3 < a_4 < a_5" display /></div>
+          <PsyExample text="Шкала Ликерта: «Полностью не согласен» < … < «Полностью согласен» — линейная цепочка. Критерий Манна-Уитни работает с рангами — именно с линейным порядком." />
+        </div>
+      </div>
+
+      {/* Visual: Likert chain */}
+      <div className="flex justify-center">
+        <svg viewBox="0 0 360 50" className="w-full max-w-[360px]">
+          {[0, 1, 2, 3, 4].map((i) => {
+            const x = 40 + i * 72;
+            const labels = ["1", "2", "3", "4", "5"];
+            const sublabels = ["не согл.", "скорее нет", "нейтр.", "скорее да", "согл."];
+            return (
+              <g key={i}>
+                {i < 4 && <line x1={x + 12} y1={16} x2={x + 60} y2={16} stroke="hsl(var(--border))" strokeWidth="1.5" />}
+                {i < 4 && <polygon points={`${x + 56},13 ${x + 60},16 ${x + 56},19`} fill="hsl(var(--muted-foreground))" />}
+                <circle cx={x} cy={16} r="10" fill="hsl(var(--module-2))" fillOpacity={0.12 + i * 0.08} stroke="hsl(var(--module-2))" strokeWidth="1.5" />
+                <text x={x} y={20} textAnchor="middle" className="fill-foreground text-[10px] font-mono font-semibold">{labels[i]}</text>
+                <text x={x} y={42} textAnchor="middle" className="fill-muted-foreground text-[7px] font-mono">{sublabels[i]}</text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+    </div>
+  </div>
+);
+
+/* ═══════════════════════════════════════════
+   Section 8 — Функции и модели S→R
+   ═══════════════════════════════════════════ */
+
+interface MappingProps {
+  leftItems: string[];
+  rightItems: string[];
+  arrows: [number, number][];
+  leftLabel: string;
+  rightLabel: string;
+  colorVar: string;
+}
+
+const MappingDiagram = ({ leftItems, rightItems, arrows, leftLabel, rightLabel, colorVar }: MappingProps) => {
+  const lx = 50;
+  const rx = 220;
+  const spacing = 36;
+  const topOffset = 30;
+  const h = Math.max(leftItems.length, rightItems.length) * spacing + topOffset + 20;
+  const accent = `hsl(var(${colorVar}))`;
+
+  return (
+    <svg viewBox={`0 0 270 ${h}`} className="w-full max-w-[270px]">
+      {/* Left set oval */}
+      <ellipse cx={lx} cy={topOffset + (leftItems.length - 1) * spacing / 2} rx="42" ry={leftItems.length * spacing / 2 + 14} fill={accent} fillOpacity="0.06" stroke={accent} strokeWidth="1.5" />
+      {/* Right set oval */}
+      <ellipse cx={rx} cy={topOffset + (rightItems.length - 1) * spacing / 2} rx="42" ry={rightItems.length * spacing / 2 + 14} fill="hsl(var(--module-3))" fillOpacity="0.06" stroke="hsl(var(--module-3))" strokeWidth="1.5" />
+
+      {/* Arrows */}
+      {arrows.map(([from, to], i) => {
+        const y1 = topOffset + from * spacing;
+        const y2 = topOffset + to * spacing;
+        return (
+          <g key={i}>
+            <line x1={lx + 20} y1={y1} x2={rx - 20} y2={y2} stroke="hsl(var(--muted-foreground))" strokeWidth="1" markerEnd="url(#arrowhead)" />
+          </g>
+        );
+      })}
+
+      <defs>
+        <marker id="arrowhead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+          <polygon points="0 0, 6 2, 0 4" fill="hsl(var(--muted-foreground))" />
+        </marker>
+      </defs>
+
+      {/* Left labels */}
+      {leftItems.map((item, i) => (
+        <text key={item} x={lx} y={topOffset + i * spacing + 4} textAnchor="middle" className="fill-foreground text-[10px] font-mono">{item}</text>
+      ))}
+      {/* Right labels */}
+      {rightItems.map((item, i) => (
+        <text key={item} x={rx} y={topOffset + i * spacing + 4} textAnchor="middle" className="fill-foreground text-[10px] font-mono">{item}</text>
+      ))}
+
+      {/* Set names */}
+      <text x={lx} y={h - 4} textAnchor="middle" className="fill-muted-foreground text-[9px] font-mono">{leftLabel}</text>
+      <text x={rx} y={h - 4} textAnchor="middle" className="fill-muted-foreground text-[9px] font-mono">{rightLabel}</text>
+    </svg>
+  );
+};
+
+const FunctionsSection = () => (
+  <div className="space-y-6">
+    <p className="text-sm text-muted-foreground font-body">
+      Функция <Tex math="f: X \to Y" /> ставит каждому элементу <Tex math="x \in X" /> в
+      соответствие единственный элемент <Tex math="y \in Y" />. Это формализует модель
+      «стимул → реакция» (S → R).
+    </p>
+
+    <div className="grid sm:grid-cols-2 gap-4 mb-2">
+      <div className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
+        <p className="font-display font-semibold text-xs text-foreground mb-1">Область определения (X)</p>
+        <p className="text-[11px] text-muted-foreground">Набор стимулов: визуальные сцены, слова, изображения лиц.</p>
+      </div>
+      <div className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
+        <p className="font-display font-semibold text-xs text-foreground mb-1">Область значений (Y)</p>
+        <p className="text-[11px] text-muted-foreground">Набор реакций: время ответа, оценка, выбор категории.</p>
+      </div>
+    </div>
+
+    <div className="bg-muted/40 rounded-lg p-4 border border-border">
+      <p className="text-xs text-muted-foreground font-body">
+        <span className="font-semibold text-foreground">Регрессия как функция:</span>{" "}
+        Линейная регрессия <Tex math="y = ax + b" /> — частный случай функции, где стимул (предиктор) <Tex math="x" /> отображается в реакцию (зависимую переменную) <Tex math="y" />.
+      </p>
+    </div>
+
+    {/* Three types of functions */}
+    <h4 className="font-display font-semibold text-foreground text-sm">Типы функций и валидность</h4>
+
+    <div className="grid sm:grid-cols-3 gap-4">
+      {/* Injection */}
+      <div className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
+        <p className="font-display font-semibold text-xs text-foreground mb-1">Инъекция (1-к-1)</p>
+        <div className="mb-2"><Tex math="f(a) = f(b) \Rightarrow a = b" display /></div>
+        <div className="flex justify-center mb-2">
+          <MappingDiagram
+            leftItems={["STAI", "BDI", "PSS"]}
+            rightItems={["Тревожн.", "Депрес.", "Стресс", "??"]}
+            arrows={[[0, 0], [1, 1], [2, 2]]}
+            leftLabel="Тесты"
+            rightLabel="Конструкты"
+            colorVar="--module-1"
+          />
+        </div>
+        <p className="text-[10px] text-muted-foreground font-body">Каждый тест измеряет уникальный конструкт, но не все конструкты покрыты.</p>
+      </div>
+
+      {/* Surjection */}
+      <div className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
+        <p className="font-display font-semibold text-xs text-foreground mb-1">Сюръекция (на)</p>
+        <div className="mb-2"><Tex math="\forall y \in Y\; \exists x : f(x) = y" display /></div>
+        <div className="flex justify-center mb-2">
+          <MappingDiagram
+            leftItems={["STAI", "BAI", "BDI", "PHQ-9"]}
+            rightItems={["Тревожн.", "Депрес."]}
+            arrows={[[0, 0], [1, 0], [2, 1], [3, 1]]}
+            leftLabel="Тесты"
+            rightLabel="Конструкты"
+            colorVar="--module-2"
+          />
+        </div>
+        <p className="text-[10px] text-muted-foreground font-body">Все конструкты покрыты, но несколько тестов измеряют одно и то же (избыточность).</p>
+      </div>
+
+      {/* Bijection */}
+      <div className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
+        <p className="font-display font-semibold text-xs text-foreground mb-1">Биекция (идеал)</p>
+        <div className="mb-2"><Tex math="f \\text{ — инъекция + сюръекция}" display /></div>
+        <div className="flex justify-center mb-2">
+          <MappingDiagram
+            leftItems={["STAI", "BDI", "PSS"]}
+            rightItems={["Тревожн.", "Депрес.", "Стресс"]}
+            arrows={[[0, 0], [1, 1], [2, 2]]}
+            leftLabel="Тесты"
+            rightLabel="Конструкты"
+            colorVar="--module-4"
+          />
+        </div>
+        <p className="text-[10px] text-muted-foreground font-body">Один тест ↔ один конструкт. Идеал конструктной валидности (на практике редок).</p>
+      </div>
+    </div>
+
+    <PsyExample text="На практике соответствие «тест → конструкт» обычно ближе к сюръекции: несколько тестов могут измерять тревожность (STAI, BAI, GAD-7). Задача исследователя — обосновать выбор инструмента и стремиться к максимальной дискриминантной валидности." />
+  </div>
+);
+
+/* ═══════════════════════════════════════════
    Page
    ═══════════════════════════════════════════ */
 const SetTheoryPage = () => (
@@ -685,7 +937,7 @@ const SetTheoryPage = () => (
         Математический фундамент, на котором строятся выборки, диагностика и статистика.
       </p>
 
-      <Accordion type="multiple" defaultValue={["basics", "operations", "sampling", "diagnostics", "boolean", "cartesian"]} className="space-y-3">
+      <Accordion type="multiple" defaultValue={["basics", "operations", "sampling", "diagnostics", "boolean", "cartesian", "relations", "functions"]} className="space-y-3">
         {[
           { value: "basics", title: "Базовые понятия", content: <BasicsSection /> },
           { value: "operations", title: "Операции над множествами", content: <OperationsSection /> },
@@ -693,6 +945,8 @@ const SetTheoryPage = () => (
           { value: "diagnostics", title: "Множества в психодиагностике", content: <ComorbidityVenn /> },
           { value: "boolean", title: "Булева алгебра и логика фильтрации", content: <BooleanSection /> },
           { value: "cartesian", title: "Декартово произведение и корреляционная матрица", content: <CartesianSection /> },
+          { value: "relations", title: "Отношения и классификация", content: <RelationsSection /> },
+          { value: "functions", title: "Функции и модели S → R", content: <FunctionsSection /> },
         ].map((s, i) => (
           <motion.div
             key={s.value}
