@@ -5,6 +5,7 @@ import HeroSection from "@/components/HeroSection";
 import RationaleSection from "@/components/RationaleSection";
 import ModuleCard from "@/components/ModuleCard";
 import type { ModuleData } from "@/components/ModuleCard";
+import RoadmapSection from "@/components/RoadmapSection";
 import ToolsSection from "@/components/ToolsSection";
 import MethodsSection from "@/components/MethodsSection";
 import ChiSquareSection from "@/components/ChiSquareSection";
@@ -98,7 +99,7 @@ const Index = () => {
           ))}
         </div>
       </section>
-
+      <RoadmapSection />
       <ToolsSection />
       <ChiSquareSection />
       <MethodsSection />
