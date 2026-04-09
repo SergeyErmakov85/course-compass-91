@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Menu, X, Home, BookOpen, Lightbulb, Wrench, Library } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 interface NavGroup {
   label: string;
@@ -92,8 +93,9 @@ const SideNav = () => {
         </nav>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-border shrink-0">
+        <div className="px-5 py-3 border-t border-border shrink-0 flex items-center justify-between">
           <span className="font-mono text-[10px] text-muted-foreground">04 модуля · 14 недель</span>
+          <ThemeToggle />
         </div>
       </aside>
     </>
