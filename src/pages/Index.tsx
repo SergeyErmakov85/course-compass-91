@@ -99,7 +99,7 @@ const Index = () => {
           ))}
         </div>
       </section>
-
+      <RoadmapSection />
       <ToolsSection />
       <ChiSquareSection />
       <MethodsSection />
