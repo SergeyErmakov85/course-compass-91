@@ -1,5 +1,6 @@
-import { motion } from "framer-motion";
-import { Brain } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Brain, ChevronRight } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -9,6 +10,7 @@ import {
 import "katex/dist/katex.min.css";
 import katex from "katex";
 
+/* ─── KaTeX helper ─── */
 const Tex = ({ math, display = false }: { math: string; display?: boolean }) => (
   <span
     dangerouslySetInnerHTML={{
@@ -17,7 +19,17 @@ const Tex = ({ math, display = false }: { math: string; display?: boolean }) => 
   />
 );
 
-/* ─── Venn Diagram SVG ─── */
+/* ─── Psych example card ─── */
+const PsyExample = ({ text }: { text: string }) => (
+  <div className="flex gap-3 bg-muted/40 rounded-lg p-4 border border-border mt-3">
+    <Brain className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+    <p className="text-xs text-muted-foreground font-body italic">{text}</p>
+  </div>
+);
+
+/* ═══════════════════════════════════════════
+   Venn Diagram (sections 1-2)
+   ═══════════════════════════════════════════ */
 type VennHighlight = "left" | "right" | "intersection" | "union" | "diff-left" | "sym-diff" | "complement";
 
 const VennDiagram = ({ highlight }: { highlight: VennHighlight }) => {
@@ -25,7 +37,6 @@ const VennDiagram = ({ highlight }: { highlight: VennHighlight }) => {
   const rightFill = ["right", "union", "sym-diff"].includes(highlight);
   const interFill = ["intersection", "union"].includes(highlight);
   const complementFill = highlight === "complement";
-
   const accent1 = "hsl(var(--module-1))";
   const accent2 = "hsl(var(--module-3))";
   const blended = "hsl(var(--module-2))";
@@ -33,47 +44,17 @@ const VennDiagram = ({ highlight }: { highlight: VennHighlight }) => {
   return (
     <svg viewBox="0 0 260 160" className="w-full max-w-[260px] mx-auto" aria-hidden>
       <defs>
-        <linearGradient id={`lg-${highlight}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={accent1} stopOpacity="0.25" />
-          <stop offset="100%" stopColor={accent2} stopOpacity="0.25" />
-        </linearGradient>
         <clipPath id="clip-left"><circle cx="95" cy="80" r="55" /></clipPath>
         <clipPath id="clip-right"><circle cx="165" cy="80" r="55" /></clipPath>
       </defs>
-
-      {/* Universe rect for complement */}
       {complementFill && (
         <rect x="5" y="5" width="250" height="150" rx="12" fill={accent1} fillOpacity="0.12" stroke="hsl(var(--border))" strokeWidth="1" />
       )}
-
-      {/* Left circle body */}
       <circle cx="95" cy="80" r="55" fill={leftFill ? accent1 : "transparent"} fillOpacity={leftFill ? 0.18 : 0} stroke={accent1} strokeWidth="1.5" />
-
-      {/* Right circle body */}
       <circle cx="165" cy="80" r="55" fill={rightFill ? accent2 : "transparent"} fillOpacity={rightFill ? 0.18 : 0} stroke={accent2} strokeWidth="1.5" />
-
-      {/* Intersection overlay */}
-      {interFill && (
-        <g clipPath="url(#clip-left)">
-          <circle cx="165" cy="80" r="55" fill={blended} fillOpacity="0.3" />
-        </g>
-      )}
-
-      {/* Sym-diff: remove intersection highlight */}
-      {highlight === "sym-diff" && (
-        <g clipPath="url(#clip-left)">
-          <circle cx="165" cy="80" r="55" fill="hsl(var(--background))" fillOpacity="0.9" />
-        </g>
-      )}
-
-      {/* Diff-left: only left minus intersection */}
-      {highlight === "diff-left" && (
-        <g clipPath="url(#clip-right)">
-          <circle cx="95" cy="80" r="55" fill="hsl(var(--background))" fillOpacity="0.95" />
-        </g>
-      )}
-
-      {/* Complement: white out circles */}
+      {interFill && <g clipPath="url(#clip-left)"><circle cx="165" cy="80" r="55" fill={blended} fillOpacity="0.3" /></g>}
+      {highlight === "sym-diff" && <g clipPath="url(#clip-left)"><circle cx="165" cy="80" r="55" fill="hsl(var(--background))" fillOpacity="0.9" /></g>}
+      {highlight === "diff-left" && <g clipPath="url(#clip-right)"><circle cx="95" cy="80" r="55" fill="hsl(var(--background))" fillOpacity="0.95" /></g>}
       {complementFill && (
         <>
           <circle cx="95" cy="80" r="55" fill="hsl(var(--background))" />
@@ -82,142 +63,61 @@ const VennDiagram = ({ highlight }: { highlight: VennHighlight }) => {
           <circle cx="165" cy="80" r="55" fill="none" stroke={accent2} strokeWidth="1.5" />
         </>
       )}
-
-      {/* Labels */}
       <text x="72" y="84" textAnchor="middle" className="fill-foreground text-[13px] font-display font-semibold">A</text>
       <text x="188" y="84" textAnchor="middle" className="fill-foreground text-[13px] font-display font-semibold">B</text>
     </svg>
   );
 };
 
-/* ─── Psychology example card ─── */
-const PsyExample = ({ text }: { text: string }) => (
-  <div className="flex gap-3 bg-muted/40 rounded-lg p-4 border border-border mt-3">
-    <Brain className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-    <p className="text-xs text-muted-foreground font-body italic">{text}</p>
-  </div>
-);
-
-/* ════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    Section 1 — Базовые понятия
-   ════════════════════════════════════════════ */
-
+   ═══════════════════════════════════════════ */
 const concepts = [
-  {
-    name: "Множество и элемент",
-    formula: "a \\in A",
-    definition: "Множество — неупорядоченная совокупность различных объектов (элементов). Запись a ∈ A означает, что элемент a принадлежит множеству A.",
-    example: "Пусть A = {тревожность, депрессия, ОКР} — множество диагнозов пациента. Тогда тревожность ∈ A, а шизофрения ∉ A.",
-  },
-  {
-    name: "Пустое и универсальное множества",
-    formula: "\\emptyset,\\; U",
-    definition: "Пустое множество ∅ не содержит элементов. Универсальное множество U — совокупность всех рассматриваемых элементов.",
-    example: "U — все студенты университета. ∅ — множество студентов, набравших 200 баллов по 100-балльной шкале (таких не существует).",
-  },
-  {
-    name: "Подмножество",
-    formula: "A \\subseteq B \\;\\Leftrightarrow\\; \\forall x(x \\in A \\Rightarrow x \\in B)",
-    definition: "A является подмножеством B, если каждый элемент A также принадлежит B. Собственное подмножество (⊂) исключает равенство множеств.",
-    example: "A — клинические психологи, B — все психологи. Тогда A ⊂ B: каждый клинический психолог — психолог, но не наоборот.",
-  },
-  {
-    name: "Мощность множества",
-    formula: "|A| = n",
-    definition: "Мощность (кардинальное число) — количество элементов в множестве. Для конечных множеств |A| — натуральное число.",
-    example: "Если A = {испытуемый₁, испытуемый₂, …, испытуемый₃₀}, то |A| = 30 — размер выборки.",
-  },
+  { name: "Множество и элемент", formula: "a \\in A", definition: "Множество — неупорядоченная совокупность различных объектов. Запись a ∈ A означает принадлежность элемента множеству.", example: "Пусть A = {тревожность, депрессия, ОКР} — множество диагнозов. Тогда тревожность ∈ A, а шизофрения ∉ A." },
+  { name: "Пустое и универсальное множества", formula: "\\emptyset,\\; U", definition: "Пустое множество ∅ не содержит элементов. Универсальное множество U — совокупность всех рассматриваемых элементов.", example: "U — все студенты университета. ∅ — множество студентов, набравших 200 баллов по 100-балльной шкале." },
+  { name: "Подмножество", formula: "A \\subseteq B", definition: "A является подмножеством B, если каждый элемент A также принадлежит B. Собственное подмножество (⊂) исключает равенство.", example: "A — клинические психологи, B — все психологи. Тогда A ⊂ B." },
+  { name: "Мощность множества", formula: "|A| = n", definition: "Мощность — количество элементов в множестве. Для конечных множеств |A| — натуральное число.", example: "Если A = {испытуемый₁, …, испытуемый₃₀}, то |A| = 30 — размер выборки." },
 ];
 
 const BasicsSection = () => (
   <div className="space-y-4">
     {concepts.map((c) => (
-      <div
-        key={c.name}
-        className="rounded-xl border border-border bg-card p-5"
-        style={{ boxShadow: "var(--shadow-card)" }}
-      >
+      <div key={c.name} className="rounded-xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-card)" }}>
         <div className="flex items-baseline justify-between flex-wrap gap-2 mb-2">
           <h4 className="font-display font-semibold text-foreground text-sm">{c.name}</h4>
           <span className="shrink-0"><Tex math={c.formula} /></span>
         </div>
-        <p className="text-xs text-muted-foreground font-body mb-1">{c.definition}</p>
+        <p className="text-xs text-muted-foreground font-body">{c.definition}</p>
         <PsyExample text={c.example} />
       </div>
     ))}
-
     <div className="bg-muted/40 rounded-lg p-4 border border-border">
       <p className="text-xs text-muted-foreground font-body">
-        <span className="font-semibold text-foreground">Ключевой пример:</span> Пусть{" "}
-        <Tex math="U" /> — все студенты университета, <Tex math="A" /> — студенты-психологи,{" "}
-        <Tex math="B" /> — студенты с высокой тревожностью. Тогда <Tex math="A \cap B" /> —
-        тревожные студенты-психологи.
+        <span className="font-semibold text-foreground">Ключевой пример:</span> Пусть <Tex math="U" /> — все студенты, <Tex math="A" /> — психологи, <Tex math="B" /> — с высокой тревожностью. Тогда <Tex math="A \cap B" /> — тревожные студенты-психологи.
       </p>
     </div>
   </div>
 );
 
-/* ════════════════════════════════════════════
-   Section 2 — Операции над множествами
-   ════════════════════════════════════════════ */
-
-const operations: {
-  name: string;
-  formula: string;
-  formal: string;
-  highlight: VennHighlight;
-  example: string;
-}[] = [
-  {
-    name: "Объединение",
-    formula: "A \\cup B",
-    formal: "A \\cup B = \\{x : x \\in A \\;\\lor\\; x \\in B\\}",
-    highlight: "union",
-    example: "Если A — пациенты с депрессией, B — с тревожностью, то A ∪ B — все пациенты, имеющие хотя бы одно из расстройств.",
-  },
-  {
-    name: "Пересечение",
-    formula: "A \\cap B",
-    formal: "A \\cap B = \\{x : x \\in A \\;\\land\\; x \\in B\\}",
-    highlight: "intersection",
-    example: "A ∩ B — пациенты с коморбидностью депрессии и тревожности (оба диагноза одновременно).",
-  },
-  {
-    name: "Разность",
-    formula: "A \\setminus B",
-    formal: "A \\setminus B = \\{x : x \\in A \\;\\land\\; x \\notin B\\}",
-    highlight: "diff-left",
-    example: "A \\ B — пациенты с депрессией, но без тревожности. Это «чистая» депрессия без коморбидности.",
-  },
-  {
-    name: "Симметрическая разность",
-    formula: "A \\triangle B",
-    formal: "A \\triangle B = (A \\setminus B) \\cup (B \\setminus A)",
-    highlight: "sym-diff",
-    example: "A △ B — пациенты, имеющие ровно одно расстройство (депрессию ИЛИ тревожность, но не оба).",
-  },
-  {
-    name: "Дополнение",
-    formula: "\\bar{A} = U \\setminus A",
-    formal: "\\bar{A} = \\{x \\in U : x \\notin A\\}",
-    highlight: "complement",
-    example: "Ā — все студенты университета, НЕ являющиеся психологами (дополнение до генеральной совокупности).",
-  },
+/* ═══════════════════════════════════════════
+   Section 2 — Операции
+   ═══════════════════════════════════════════ */
+const operations: { name: string; formula: string; formal: string; highlight: VennHighlight; example: string }[] = [
+  { name: "Объединение", formula: "A \\cup B", formal: "A \\cup B = \\{x : x \\in A \\lor x \\in B\\}", highlight: "union", example: "A — пациенты с депрессией, B — с тревожностью. A ∪ B — все, имеющие хотя бы одно расстройство." },
+  { name: "Пересечение", formula: "A \\cap B", formal: "A \\cap B = \\{x : x \\in A \\land x \\in B\\}", highlight: "intersection", example: "A ∩ B — пациенты с коморбидностью депрессии и тревожности." },
+  { name: "Разность", formula: "A \\setminus B", formal: "A \\setminus B = \\{x : x \\in A \\land x \\notin B\\}", highlight: "diff-left", example: "A \\ B — пациенты с «чистой» депрессией без тревожности." },
+  { name: "Симметрическая разность", formula: "A \\triangle B", formal: "A \\triangle B = (A \\setminus B) \\cup (B \\setminus A)", highlight: "sym-diff", example: "A △ B — пациенты с ровно одним расстройством." },
+  { name: "Дополнение", formula: "\\bar{A}", formal: "\\bar{A} = U \\setminus A", highlight: "complement", example: "Ā — все студенты, НЕ являющиеся психологами." },
 ];
 
 const OperationsSection = () => (
   <div className="space-y-6">
     {operations.map((op) => (
-      <div
-        key={op.name}
-        className="rounded-xl border border-border bg-card p-5"
-        style={{ boxShadow: "var(--shadow-card)" }}
-      >
+      <div key={op.name} className="rounded-xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-card)" }}>
         <div className="flex items-baseline gap-3 mb-3">
           <h4 className="font-display font-semibold text-foreground text-sm">{op.name}</h4>
           <Tex math={op.formula} />
         </div>
-
         <div className="grid sm:grid-cols-[1fr_auto] gap-4 items-start">
           <div>
             <div className="mb-2"><Tex math={op.formal} display /></div>
@@ -230,10 +130,304 @@ const OperationsSection = () => (
   </div>
 );
 
-/* ════════════════════════════════════════════
-   Page
-   ════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   Section 3 — Множества в формировании выборки
+   ═══════════════════════════════════════════ */
+const sampleSteps = [
+  {
+    id: 0,
+    label: "Генеральная совокупность",
+    formula: "\\Omega = \\{\\text{все жители города}\\}",
+    description: "Определяем генеральную совокупность — множество всех потенциальных участников исследования. Это отправная точка, из которой мы будем формировать выборку.",
+    svg: (
+      <svg viewBox="0 0 240 160" className="w-full max-w-[240px] mx-auto">
+        <motion.circle cx="120" cy="80" r="70" fill="hsl(var(--module-1))" fillOpacity="0.12" stroke="hsl(var(--module-1))" strokeWidth="1.5" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }} />
+        <text x="120" y="84" textAnchor="middle" className="fill-foreground text-[12px] font-display font-semibold">Ω</text>
+      </svg>
+    ),
+  },
+  {
+    id: 1,
+    label: "Критерий включения (18–65 лет)",
+    formula: "A = \\{x \\in \\Omega : 18 \\le \\text{возраст}(x) \\le 65\\}",
+    description: "Первый фильтр: оставляем только участников трудоспособного возраста. Множество A — собственное подмножество Ω.",
+    svg: (
+      <svg viewBox="0 0 240 160" className="w-full max-w-[240px] mx-auto">
+        <circle cx="120" cy="80" r="70" fill="none" stroke="hsl(var(--border))" strokeWidth="1" strokeDasharray="4 3" />
+        <motion.circle cx="120" cy="80" r="50" fill="hsl(var(--module-2))" fillOpacity="0.15" stroke="hsl(var(--module-2))" strokeWidth="1.5" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }} />
+        <text x="120" y="76" textAnchor="middle" className="fill-foreground text-[12px] font-display font-semibold">A</text>
+        <text x="120" y="92" textAnchor="middle" className="fill-muted-foreground text-[9px] font-mono">⊂ Ω</text>
+      </svg>
+    ),
+  },
+  {
+    id: 2,
+    label: "Критерий исключения (психиатрический диагноз)",
+    formula: "A \\setminus B,\\quad B = \\{x : \\text{псих. диагноз}\\}",
+    description: "Исключаем участников с текущим психиатрическим диагнозом. Операция разности множеств «вырезает» нежелательную подгруппу.",
+    svg: (
+      <svg viewBox="0 0 240 160" className="w-full max-w-[240px] mx-auto">
+        <defs><clipPath id="clip-sample-a"><circle cx="110" cy="80" r="50" /></clipPath></defs>
+        <motion.circle cx="110" cy="80" r="50" fill="hsl(var(--module-2))" fillOpacity="0.15" stroke="hsl(var(--module-2))" strokeWidth="1.5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} />
+        <motion.circle cx="155" cy="90" r="28" fill="hsl(var(--destructive))" fillOpacity="0.12" stroke="hsl(var(--destructive))" strokeWidth="1.5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.4 }} />
+        <g clipPath="url(#clip-sample-a)">
+          <motion.circle cx="155" cy="90" r="28" fill="hsl(var(--background))" fillOpacity="0.9" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.4 }} />
+        </g>
+        <text x="90" y="78" textAnchor="middle" className="fill-foreground text-[11px] font-display font-semibold">A\B</text>
+        <text x="162" y="94" textAnchor="middle" className="fill-destructive text-[10px] font-display">B</text>
+      </svg>
+    ),
+  },
+  {
+    id: 3,
+    label: "Стратификация по полу",
+    formula: "M \\cap F = \\emptyset,\\quad M \\cup F = A \\setminus B",
+    description: "Финальная выборка разбивается на непересекающиеся страты по полу. Это разбиение (partition): страты не пересекаются и в сумме дают всю выборку.",
+    svg: (
+      <svg viewBox="0 0 240 160" className="w-full max-w-[240px] mx-auto">
+        <motion.rect x="20" y="30" width="90" height="100" rx="12" fill="hsl(var(--module-1))" fillOpacity="0.12" stroke="hsl(var(--module-1))" strokeWidth="1.5" initial={{ x: 120, opacity: 0 }} animate={{ x: 20, opacity: 1 }} transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }} />
+        <motion.rect x="130" y="30" width="90" height="100" rx="12" fill="hsl(var(--module-4))" fillOpacity="0.12" stroke="hsl(var(--module-4))" strokeWidth="1.5" initial={{ x: 120, opacity: 0 }} animate={{ x: 130, opacity: 1 }} transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1], delay: 0.15 }} />
+        <text x="65" y="84" textAnchor="middle" className="fill-foreground text-[12px] font-display font-semibold">M</text>
+        <text x="175" y="84" textAnchor="middle" className="fill-foreground text-[12px] font-display font-semibold">F</text>
+      </svg>
+    ),
+  },
+];
 
+const SamplingSection = () => {
+  const [step, setStep] = useState(0);
+  const current = sampleSteps[step];
+
+  return (
+    <div className="space-y-5">
+      <p className="text-sm text-muted-foreground font-body">
+        Формирование выборки — последовательность теоретико-множественных операций над генеральной совокупностью.
+      </p>
+
+      {/* Step navigation */}
+      <div className="flex gap-2 flex-wrap">
+        {sampleSteps.map((s, i) => (
+          <button
+            key={s.id}
+            onClick={() => setStep(i)}
+            className={`font-mono text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-md border transition-colors ${
+              step === i
+                ? "bg-foreground text-background border-foreground"
+                : "bg-card text-muted-foreground border-border hover:border-foreground/30"
+            }`}
+          >
+            Шаг {i + 1}
+          </button>
+        ))}
+      </div>
+
+      {/* Animated step content */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={current.id}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
+          className="rounded-xl border border-border bg-card p-5"
+          style={{ boxShadow: "var(--shadow-card)" }}
+        >
+          <h4 className="font-display font-semibold text-foreground text-sm mb-1 flex items-center gap-2">
+            <span className="font-mono text-[10px] text-muted-foreground">Шаг {step + 1}</span>
+            <ChevronRight className="w-3 h-3 text-muted-foreground" />
+            {current.label}
+          </h4>
+          <div className="my-3"><Tex math={current.formula} display /></div>
+          <div className="grid sm:grid-cols-[1fr_auto] gap-4 items-center">
+            <p className="text-xs text-muted-foreground font-body">{current.description}</p>
+            <div className="w-[200px] shrink-0">{current.svg}</div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Next / prev */}
+      <div className="flex justify-between">
+        <button
+          onClick={() => setStep((p) => Math.max(0, p - 1))}
+          disabled={step === 0}
+          className="font-mono text-[11px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30"
+        >
+          ← Назад
+        </button>
+        <button
+          onClick={() => setStep((p) => Math.min(sampleSteps.length - 1, p + 1))}
+          disabled={step === sampleSteps.length - 1}
+          className="font-mono text-[11px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30"
+        >
+          Далее →
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
+   Section 4 — Множества в психодиагностике (interactive Venn)
+   ═══════════════════════════════════════════ */
+type DiagRegion = "depression" | "anxiety" | "comorbid" | "norm" | null;
+
+const regionData: Record<Exclude<DiagRegion, null>, { title: string; description: string; characteristics: string }> = {
+  depression: {
+    title: "«Чистая» депрессия (D \\ T)",
+    description: "Пациенты с BDI-II > 20, но STAI-S ≤ 45. Депрессивная симптоматика без выраженной тревожности.",
+    characteristics: "Ангедония, психомоторная заторможенность, руминации. Хороший ответ на КПТ и антидепрессанты (СИОЗС).",
+  },
+  anxiety: {
+    title: "«Чистая» тревожность (T \\ D)",
+    description: "Пациенты с STAI-S > 45, но BDI-II ≤ 20. Тревожная симптоматика без клинической депрессии.",
+    characteristics: "Соматические симптомы, гипервигильность, избегание. Эффективны экспозиционная терапия и релаксация.",
+  },
+  comorbid: {
+    title: "Коморбидная группа (D ∩ T)",
+    description: "Пациенты с BDI-II > 20 И STAI-S > 45 одновременно. Наиболее тяжёлая клиническая картина.",
+    characteristics: "Выше суицидальный риск, хуже прогноз, требуется комбинированная терапия. Составляют ≈45% клинической выборки.",
+  },
+  norm: {
+    title: "Норма ((D ∪ T)ᶜ)",
+    description: "Пациенты с BDI-II ≤ 20 И STAI-S ≤ 45. Отсутствие клинически значимой симптоматики.",
+    characteristics: "Контрольная группа в исследовании. Базовый уровень для сравнения с клиническими группами.",
+  },
+};
+
+const ComorbidityVenn = () => {
+  const [active, setActive] = useState<DiagRegion>(null);
+
+  const dBlue = "hsl(220, 70%, 55%)";
+  const tOrange = "hsl(35, 85%, 55%)";
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground font-body">
+        Кейс: <strong>Коморбидность депрессии и тревожности</strong>. Кликните на область диаграммы, чтобы увидеть описание группы.
+      </p>
+
+      <div className="flex flex-col items-center">
+        <svg viewBox="0 0 340 220" className="w-full max-w-[380px]">
+          <defs>
+            <clipPath id="clip-d"><circle cx="120" cy="110" r="70" /></clipPath>
+            <clipPath id="clip-t"><circle cx="220" cy="110" r="70" /></clipPath>
+            <linearGradient id="comorbid-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor={dBlue} stopOpacity="0.35" />
+              <stop offset="100%" stopColor={tOrange} stopOpacity="0.35" />
+            </linearGradient>
+          </defs>
+
+          {/* Outer rect = norm (clickable) */}
+          <rect
+            x="5" y="5" width="330" height="210" rx="14"
+            fill={active === "norm" ? "hsl(var(--module-2))" : "transparent"}
+            fillOpacity={active === "norm" ? 0.08 : 0}
+            stroke="hsl(var(--border))"
+            strokeWidth="1"
+            className="cursor-pointer"
+            onClick={() => setActive(active === "norm" ? null : "norm")}
+          />
+          <text x="310" y="25" textAnchor="end" className="fill-muted-foreground text-[10px] font-mono">U</text>
+
+          {/* Depression-only (left crescent) */}
+          <g className="cursor-pointer" onClick={() => setActive(active === "depression" ? null : "depression")}>
+            <circle
+              cx="120" cy="110" r="70"
+              fill={active === "depression" || active === "comorbid" ? dBlue : dBlue}
+              fillOpacity={active === "depression" ? 0.25 : 0.1}
+              stroke={dBlue}
+              strokeWidth="2"
+            />
+          </g>
+
+          {/* Anxiety-only (right crescent) */}
+          <g className="cursor-pointer" onClick={() => setActive(active === "anxiety" ? null : "anxiety")}>
+            <circle
+              cx="220" cy="110" r="70"
+              fill={active === "anxiety" || active === "comorbid" ? tOrange : tOrange}
+              fillOpacity={active === "anxiety" ? 0.25 : 0.1}
+              stroke={tOrange}
+              strokeWidth="2"
+            />
+          </g>
+
+          {/* Intersection (comorbid) — drawn on top */}
+          <g clipPath="url(#clip-d)" className="cursor-pointer" onClick={() => setActive(active === "comorbid" ? null : "comorbid")}>
+            <circle
+              cx="220" cy="110" r="70"
+              fill={active === "comorbid" ? "url(#comorbid-grad)" : "url(#comorbid-grad)"}
+              fillOpacity={active === "comorbid" ? 1 : 0.5}
+            />
+          </g>
+
+          {/* Labels */}
+          <text x="90" y="108" textAnchor="middle" className="fill-foreground text-[13px] font-display font-semibold">D</text>
+          <text x="90" y="124" textAnchor="middle" className="fill-muted-foreground text-[9px] font-mono">BDI-II{">"}20</text>
+          <text x="250" y="108" textAnchor="middle" className="fill-foreground text-[13px] font-display font-semibold">T</text>
+          <text x="250" y="124" textAnchor="middle" className="fill-muted-foreground text-[9px] font-mono">STAI-S{">"}45</text>
+          <text x="170" y="114" textAnchor="middle" className="fill-foreground text-[11px] font-display font-semibold">D∩T</text>
+        </svg>
+
+        {/* Legend */}
+        <div className="flex flex-wrap gap-4 mt-2 justify-center">
+          {([
+            { key: "depression" as const, color: dBlue, label: "Депрессия (D)" },
+            { key: "anxiety" as const, color: tOrange, label: "Тревожность (T)" },
+            { key: "comorbid" as const, color: undefined, label: "Коморбидность (D∩T)" },
+            { key: "norm" as const, color: "hsl(var(--muted-foreground))", label: "Норма" },
+          ]).map((l) => (
+            <button
+              key={l.key}
+              onClick={() => setActive(active === l.key ? null : l.key)}
+              className={`flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider transition-colors ${
+                active === l.key ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <span
+                className="w-2.5 h-2.5 rounded-full"
+                style={{
+                  background: l.key === "comorbid"
+                    ? `linear-gradient(135deg, ${dBlue}, ${tOrange})`
+                    : l.color,
+                }}
+              />
+              {l.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Detail panel */}
+      <AnimatePresence mode="wait">
+        {active && (
+          <motion.div
+            key={active}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}
+            className="rounded-xl border border-border bg-card p-5"
+            style={{ boxShadow: "var(--shadow-card)" }}
+          >
+            <h4 className="font-display font-semibold text-foreground text-sm mb-1">
+              {regionData[active].title}
+            </h4>
+            <p className="text-xs text-muted-foreground font-body mb-2">{regionData[active].description}</p>
+            <div className="bg-muted/40 rounded-lg p-3 border border-border">
+              <p className="text-[11px] text-muted-foreground font-body">
+                <span className="font-semibold text-foreground">Характеристики:</span> {regionData[active].characteristics}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
+   Page
+   ═══════════════════════════════════════════ */
 const SetTheoryPage = () => (
   <div className="py-12 max-w-[900px] mx-auto px-6 lg:px-8">
     <motion.div
@@ -251,46 +445,31 @@ const SetTheoryPage = () => (
         Математический фундамент, на котором строятся выборки, диагностика и статистика.
       </p>
 
-      <Accordion type="multiple" defaultValue={["basics", "operations"]} className="space-y-3">
-        {/* Section 1 */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.05, ease: [0.2, 0.8, 0.2, 1] as const }}
-        >
-          <AccordionItem
-            value="basics"
-            className="rounded-xl border border-border bg-card px-5 data-[state=open]:shadow-sm transition-shadow"
-            style={{ boxShadow: "var(--shadow-card)" }}
+      <Accordion type="multiple" defaultValue={["basics", "operations", "sampling", "diagnostics"]} className="space-y-3">
+        {[
+          { value: "basics", title: "Базовые понятия", content: <BasicsSection /> },
+          { value: "operations", title: "Операции над множествами", content: <OperationsSection /> },
+          { value: "sampling", title: "Множества в формировании выборки", content: <SamplingSection /> },
+          { value: "diagnostics", title: "Множества в психодиагностике", content: <ComorbidityVenn /> },
+        ].map((s, i) => (
+          <motion.div
+            key={s.value}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: i * 0.07, ease: [0.2, 0.8, 0.2, 1] as const }}
           >
-            <AccordionTrigger className="hover:no-underline text-left">
-              <span className="font-display font-semibold text-foreground">Базовые понятия</span>
-            </AccordionTrigger>
-            <AccordionContent className="pt-2 pb-5">
-              <BasicsSection />
-            </AccordionContent>
-          </AccordionItem>
-        </motion.div>
-
-        {/* Section 2 */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.12, ease: [0.2, 0.8, 0.2, 1] as const }}
-        >
-          <AccordionItem
-            value="operations"
-            className="rounded-xl border border-border bg-card px-5 data-[state=open]:shadow-sm transition-shadow"
-            style={{ boxShadow: "var(--shadow-card)" }}
-          >
-            <AccordionTrigger className="hover:no-underline text-left">
-              <span className="font-display font-semibold text-foreground">Операции над множествами</span>
-            </AccordionTrigger>
-            <AccordionContent className="pt-2 pb-5">
-              <OperationsSection />
-            </AccordionContent>
-          </AccordionItem>
-        </motion.div>
+            <AccordionItem
+              value={s.value}
+              className="rounded-xl border border-border bg-card px-5 data-[state=open]:shadow-sm transition-shadow"
+              style={{ boxShadow: "var(--shadow-card)" }}
+            >
+              <AccordionTrigger className="hover:no-underline text-left">
+                <span className="font-display font-semibold text-foreground">{s.title}</span>
+              </AccordionTrigger>
+              <AccordionContent className="pt-2 pb-5">{s.content}</AccordionContent>
+            </AccordionItem>
+          </motion.div>
+        ))}
       </Accordion>
     </motion.div>
   </div>
