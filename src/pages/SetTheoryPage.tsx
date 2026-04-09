@@ -426,6 +426,246 @@ const ComorbidityVenn = () => {
 };
 
 /* ═══════════════════════════════════════════
+   Section 5 — Булева алгебра и логика фильтрации
+   ═══════════════════════════════════════════ */
+const booleanRows = [
+  {
+    set: "A \\cap B",
+    bool: "AND",
+    excel: '=И(A2>18; B2="жен")',
+    qualtrics: "Skip logic: IF age>18 AND gender=F",
+  },
+  {
+    set: "A \\cup B",
+    bool: "OR",
+    excel: '=ИЛИ(C2="да"; D2="да")',
+    qualtrics: "Display logic: IF q1=yes OR q2=yes",
+  },
+  {
+    set: "\\bar{A}",
+    bool: "NOT",
+    excel: '=НЕ(E2="исключён")',
+    qualtrics: "Branch: IF NOT consent=yes",
+  },
+];
+
+const BooleanSection = () => (
+  <div className="space-y-5">
+    <p className="text-sm text-muted-foreground font-body">
+      Операции над множествами напрямую соответствуют булевым операторам, которые используются
+      при фильтрации данных в Excel, SPSS и платформах для опросов.
+    </p>
+
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs font-body border-collapse">
+        <thead>
+          <tr className="border-b border-border text-left">
+            <th className="py-2 pr-3 font-display font-semibold text-foreground">Множественная операция</th>
+            <th className="py-2 pr-3 font-display font-semibold text-foreground">Булев оператор</th>
+            <th className="py-2 pr-3 font-display font-semibold text-foreground">Пример в Excel/SPSS</th>
+            <th className="py-2 font-display font-semibold text-foreground">Пример в Qualtrics</th>
+          </tr>
+        </thead>
+        <tbody className="text-muted-foreground">
+          {booleanRows.map((r, i) => (
+            <tr key={i} className={i < booleanRows.length - 1 ? "border-b border-border/50" : ""}>
+              <td className="py-2.5 pr-3"><Tex math={r.set} /></td>
+              <td className="py-2.5 pr-3 font-mono font-semibold text-foreground">{r.bool}</td>
+              <td className="py-2.5 pr-3 font-mono text-[11px]">{r.excel}</td>
+              <td className="py-2.5 font-mono text-[11px]">{r.qualtrics}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {/* Practical assignment */}
+    <div
+      className="rounded-xl border border-border bg-card p-5"
+      style={{ boxShadow: "var(--shadow-card)" }}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <span className="font-mono text-[10px] uppercase tracking-widest text-accent bg-accent/10 px-2 py-0.5 rounded">
+          Практическое задание
+        </span>
+      </div>
+      <p className="text-sm text-muted-foreground font-body mb-3">
+        Используя Excel, отфильтруйте из набора данных (<Tex math="N = 200" />) подгруппу:
+        женщины в возрасте 20–30 лет, <strong>НЕ</strong> имеющие диагноза, с уровнем стресса
+        выше среднего.
+      </p>
+
+      <div className="bg-muted/40 rounded-lg p-4 border border-border space-y-2">
+        <p className="text-xs text-muted-foreground font-body">
+          <span className="font-semibold text-foreground">Теоретико-множественная нотация:</span>
+        </p>
+        <div className="text-center">
+          <Tex
+            math="S = \{x \in U : \text{пол}(x) = \text{Ж}\} \;\cap\; \{x : 20 \le \text{возр}(x) \le 30\} \;\cap\; \overline{\{x : \text{диагноз}(x)\}} \;\cap\; \{x : \text{стресс}(x) > \bar{X}_{\text{стресс}}\}"
+            display
+          />
+        </div>
+        <p className="text-xs text-muted-foreground font-body">
+          <span className="font-semibold text-foreground">Excel:</span>{" "}
+          <code className="font-mono text-[11px] bg-muted px-1.5 py-0.5 rounded">
+            =СЧЁТЕСЛИМН(B:B;"Ж"; C:C;"&gt;=20"; C:C;"&lt;=30"; D:D;"нет"; E:E;"&gt;"&amp;СРЗНАЧ(E:E))
+          </code>
+        </p>
+      </div>
+    </div>
+  </div>
+);
+
+/* ═══════════════════════════════════════════
+   Section 6 — Декартово произведение и корреляционная матрица
+   ═══════════════════════════════════════════ */
+const variables = ["Тревожность", "Депрессия", "Стресс"] as const;
+const corrValues: number[][] = [
+  [1.0, 0.72, 0.58],
+  [0.72, 1.0, 0.65],
+  [0.58, 0.65, 1.0],
+];
+const corrDescriptions: string[][] = [
+  [
+    "Диагональ: корреляция тревожности с самой собой (всегда 1.00).",
+    "Сильная положительная связь (r = .72). Депрессия и тревожность — частая коморбидность.",
+    "Умеренная связь (r = .58). Стресс повышает тревожность, но не детерминирует её.",
+  ],
+  [
+    "Сильная положительная связь (r = .72). Депрессия и тревожность — частая коморбидность.",
+    "Диагональ: корреляция депрессии с самой собой.",
+    "Умеренно-сильная связь (r = .65). Хронический стресс — фактор риска депрессии.",
+  ],
+  [
+    "Умеренная связь (r = .58). Стресс повышает тревожность, но не детерминирует её.",
+    "Умеренно-сильная связь (r = .65). Хронический стресс — фактор риска депрессии.",
+    "Диагональ: корреляция стресса с самим собой.",
+  ],
+];
+
+const getCorrColor = (v: number): string => {
+  if (v >= 1) return "hsl(var(--module-1) / 0.15)";
+  if (v >= 0.7) return "hsl(var(--module-1) / 0.35)";
+  if (v >= 0.5) return "hsl(var(--module-2) / 0.3)";
+  if (v >= 0.3) return "hsl(var(--module-4) / 0.2)";
+  return "hsl(var(--muted) / 0.5)";
+};
+
+const CartesianSection = () => {
+  const [hovered, setHovered] = useState<[number, number] | null>(null);
+
+  return (
+    <div className="space-y-5">
+      <p className="text-sm text-muted-foreground font-body">
+        Если <Tex math="X = \{\text{тревожность, депрессия, стресс}\}" /> — множество переменных,
+        то <Tex math="X \times X" /> — все возможные пары. Корреляционная матрица — это функция:
+      </p>
+      <div className="text-center my-2">
+        <Tex math="r : X \times X \to [-1,\; 1]" display />
+      </div>
+
+      {/* Interactive matrix */}
+      <div className="flex flex-col items-center">
+        <div className="overflow-x-auto">
+          <table className="border-collapse">
+            <thead>
+              <tr>
+                <th className="w-24" />
+                {variables.map((v) => (
+                  <th
+                    key={v}
+                    className="px-3 py-2 font-display font-semibold text-[11px] text-foreground text-center min-w-[100px]"
+                  >
+                    {v}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {variables.map((rowVar, ri) => (
+                <tr key={rowVar}>
+                  <td className="px-3 py-2 font-display font-semibold text-[11px] text-foreground text-right">
+                    {rowVar}
+                  </td>
+                  {corrValues[ri].map((val, ci) => (
+                    <td
+                      key={ci}
+                      className="px-3 py-3 text-center cursor-default transition-all duration-200 border border-border/40 rounded-sm"
+                      style={{
+                        backgroundColor: getCorrColor(val),
+                        transform:
+                          hovered && hovered[0] === ri && hovered[1] === ci
+                            ? "scale(1.1)"
+                            : "scale(1)",
+                        boxShadow:
+                          hovered && hovered[0] === ri && hovered[1] === ci
+                            ? "var(--shadow-md)"
+                            : "none",
+                      }}
+                      onMouseEnter={() => setHovered([ri, ci])}
+                      onMouseLeave={() => setHovered(null)}
+                    >
+                      <span
+                        className={`font-mono text-sm font-semibold ${
+                          val >= 1 ? "text-muted-foreground" : "text-foreground"
+                        }`}
+                      >
+                        {val.toFixed(2)}
+                      </span>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Tooltip description */}
+        <AnimatePresence mode="wait">
+          {hovered && (
+            <motion.div
+              key={`${hovered[0]}-${hovered[1]}`}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="mt-4 text-xs text-muted-foreground font-body text-center max-w-[400px]"
+            >
+              <span className="font-semibold text-foreground">
+                {variables[hovered[0]]} × {variables[hovered[1]]}:
+              </span>{" "}
+              {corrDescriptions[hovered[0]][hovered[1]]}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {!hovered && (
+          <p className="mt-4 text-[10px] text-muted-foreground font-mono uppercase tracking-wider">
+            Наведите на ячейку для описания
+          </p>
+        )}
+      </div>
+
+      {/* Color legend */}
+      <div className="flex flex-wrap gap-3 justify-center mt-2">
+        {[
+          { label: "r = 1.00", color: getCorrColor(1) },
+          { label: "r ≥ 0.70", color: getCorrColor(0.72) },
+          { label: "r ≥ 0.50", color: getCorrColor(0.58) },
+        ].map((l) => (
+          <div key={l.label} className="flex items-center gap-1.5">
+            <span className="w-4 h-3 rounded" style={{ backgroundColor: l.color, border: "1px solid hsl(var(--border))" }} />
+            <span className="font-mono text-[10px] text-muted-foreground">{l.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <PsyExample text="Корреляционная матрица показывает, что тревожность и депрессия связаны сильнее (r = .72), чем стресс и тревожность (r = .58). Это согласуется с трансдиагностическим подходом к эмоциональным расстройствам." />
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
    Page
    ═══════════════════════════════════════════ */
 const SetTheoryPage = () => (
@@ -445,12 +685,14 @@ const SetTheoryPage = () => (
         Математический фундамент, на котором строятся выборки, диагностика и статистика.
       </p>
 
-      <Accordion type="multiple" defaultValue={["basics", "operations", "sampling", "diagnostics"]} className="space-y-3">
+      <Accordion type="multiple" defaultValue={["basics", "operations", "sampling", "diagnostics", "boolean", "cartesian"]} className="space-y-3">
         {[
           { value: "basics", title: "Базовые понятия", content: <BasicsSection /> },
           { value: "operations", title: "Операции над множествами", content: <OperationsSection /> },
           { value: "sampling", title: "Множества в формировании выборки", content: <SamplingSection /> },
           { value: "diagnostics", title: "Множества в психодиагностике", content: <ComorbidityVenn /> },
+          { value: "boolean", title: "Булева алгебра и логика фильтрации", content: <BooleanSection /> },
+          { value: "cartesian", title: "Декартово произведение и корреляционная матрица", content: <CartesianSection /> },
         ].map((s, i) => (
           <motion.div
             key={s.value}
