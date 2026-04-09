@@ -100,6 +100,7 @@ const Index = () => {
       </section>
 
       <ToolsSection />
+      <ChiSquareSection />
       <MethodsSection />
 
       {/* Footer */}
