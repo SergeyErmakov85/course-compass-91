@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import StatTestQuiz from "@/components/StatTestQuiz";
 
 const topics = [
   {
@@ -58,6 +59,15 @@ const StatisticsPage = () => {
             </motion.div>
           ))}
         </div>
+
+        {/* Quiz */}
+        <section className="mb-10">
+          <h2 className="font-display text-xl font-semibold text-foreground mb-4">Помощник выбора критерия</h2>
+          <p className="text-sm text-muted-foreground font-body mb-4">
+            Ответьте на 4 вопроса — и получите рекомендацию по статистическому критерию для вашего исследования.
+          </p>
+          <StatTestQuiz />
+        </section>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-muted/30 p-4 rounded-lg border border-border">
           <div className="flex-1">
