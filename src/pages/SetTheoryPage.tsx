@@ -919,6 +919,175 @@ const FunctionsSection = () => (
 );
 
 /* ═══════════════════════════════════════════
+   Section 9 — Мост к теории вероятностей
+   ═══════════════════════════════════════════ */
+const probFormulas = [
+  {
+    id: "event",
+    label: "P(A)",
+    title: "Вероятность события",
+    formula: "P(A) = \\frac{|A|}{|\\Omega|}",
+    example: "Вероятность случайно выбрать студента-интроверта из группы. Если в группе 30 студентов и 12 из них — интроверты, то P(интроверт) = 12/30 = 0.4.",
+    highlight: "left" as VennHighlight,
+  },
+  {
+    id: "inclusion",
+    label: "P(A∪B)",
+    title: "Формула включений-исключений",
+    formula: "P(A \\cup B) = P(A) + P(B) - P(A \\cap B)",
+    example: "Вероятность того, что случайный пациент имеет депрессию ИЛИ тревожность. Без вычитания пересечения мы бы посчитали коморбидных пациентов дважды.",
+    highlight: "union" as VennHighlight,
+  },
+  {
+    id: "conditional",
+    label: "P(A|B)",
+    title: "Условная вероятность",
+    formula: "P(A|B) = \\frac{P(A \\cap B)}{P(B)}",
+    example: "Вероятность суицидальных мыслей, ЕСЛИ диагностирована тяжёлая депрессия. Мы «сужаем» пространство до множества B и смотрим долю A внутри него.",
+    highlight: "intersection" as VennHighlight,
+  },
+  {
+    id: "bayes",
+    label: "Байес",
+    title: "Теорема Байеса",
+    formula: "P(A|B) = \\frac{P(B|A) \\cdot P(A)}{P(B)}",
+    example: "Апостериорная вероятность диагноза после получения результата теста. P(B|A) — чувствительность теста, P(A) — базовая распространённость, P(B) — общая частота положительного результата. Ключевая формула для понимания специфичности и чувствительности диагностических инструментов.",
+    highlight: "intersection" as VennHighlight,
+  },
+];
+
+/* Probability Venn — highlights areas based on active formula */
+const ProbVenn = ({ activeId }: { activeId: string }) => {
+  const accent1 = "hsl(var(--module-1))";
+  const accent2 = "hsl(var(--module-3))";
+  const blended = "hsl(var(--module-2))";
+
+  const showA = ["event", "inclusion"].includes(activeId);
+  const showB = ["inclusion"].includes(activeId);
+  const showInter = ["inclusion", "conditional", "bayes"].includes(activeId);
+  const showOnlyInter = ["conditional", "bayes"].includes(activeId);
+
+  return (
+    <svg viewBox="0 0 280 180" className="w-full max-w-[280px] mx-auto">
+      <defs>
+        <clipPath id="prob-clip-left"><circle cx="105" cy="90" r="58" /></clipPath>
+        <clipPath id="prob-clip-right"><circle cx="175" cy="90" r="58" /></clipPath>
+      </defs>
+      {/* Omega rectangle */}
+      <rect x="8" y="8" width="264" height="164" rx="12" fill="none" stroke="hsl(var(--border))" strokeWidth="1" strokeDasharray="4 3" />
+      <text x="22" y="24" className="fill-muted-foreground text-[10px] font-mono">Ω</text>
+
+      {/* Circle A */}
+      <motion.circle
+        cx="105" cy="90" r="58"
+        fill={showA || showOnlyInter ? accent1 : "transparent"}
+        fillOpacity={showA ? 0.18 : showOnlyInter ? 0.06 : 0}
+        stroke={accent1} strokeWidth="1.5"
+        animate={{ fillOpacity: showA ? 0.18 : showOnlyInter ? 0.06 : 0 }}
+        transition={{ duration: 0.4 }}
+      />
+      {/* Circle B */}
+      <motion.circle
+        cx="175" cy="90" r="58"
+        fill={showB || showOnlyInter ? accent2 : "transparent"}
+        fillOpacity={showB ? 0.18 : showOnlyInter ? 0.06 : 0}
+        stroke={accent2} strokeWidth="1.5"
+        animate={{ fillOpacity: showB ? 0.18 : showOnlyInter ? 0.06 : 0 }}
+        transition={{ duration: 0.4 }}
+      />
+      {/* Intersection highlight */}
+      {showInter && (
+        <g clipPath="url(#prob-clip-left)">
+          <motion.circle
+            cx="175" cy="90" r="58"
+            fill={blended}
+            fillOpacity={0.35}
+            initial={{ fillOpacity: 0 }}
+            animate={{ fillOpacity: 0.35 }}
+            transition={{ duration: 0.4 }}
+          />
+        </g>
+      )}
+
+      {/* Conditional: dim everything outside B */}
+      {showOnlyInter && (
+        <motion.rect
+          x="8" y="8" width="264" height="164" rx="12"
+          fill="hsl(var(--background))" fillOpacity={0.6}
+          initial={{ fillOpacity: 0 }} animate={{ fillOpacity: 0.6 }}
+          transition={{ duration: 0.4 }}
+        />
+      )}
+      {showOnlyInter && (
+        <>
+          <motion.circle cx="175" cy="90" r="58" fill={accent2} fillOpacity={0.1} stroke={accent2} strokeWidth="1.5" initial={{ fillOpacity: 0 }} animate={{ fillOpacity: 0.1 }} transition={{ duration: 0.4 }} />
+          <g clipPath="url(#prob-clip-left)">
+            <motion.circle cx="175" cy="90" r="58" fill={blended} fillOpacity={0.4} initial={{ fillOpacity: 0 }} animate={{ fillOpacity: 0.4 }} transition={{ duration: 0.4 }} />
+          </g>
+        </>
+      )}
+
+      <text x="80" y="94" textAnchor="middle" className="fill-foreground text-[13px] font-display font-semibold">A</text>
+      <text x="200" y="94" textAnchor="middle" className="fill-foreground text-[13px] font-display font-semibold">B</text>
+    </svg>
+  );
+};
+
+const ProbabilityBridgeSection = () => {
+  const [activeIdx, setActiveIdx] = useState(0);
+  const active = probFormulas[activeIdx];
+
+  return (
+    <div className="space-y-5">
+      <p className="text-sm text-muted-foreground font-body">
+        Ключевая идея: <span className="font-semibold text-foreground">событие = подмножество</span> пространства элементарных исходов <Tex math="\Omega" />. Вся теория вероятностей строится на языке множеств.
+      </p>
+
+      {/* Tabs */}
+      <div className="flex gap-2 flex-wrap">
+        {probFormulas.map((f, i) => (
+          <button
+            key={f.id}
+            onClick={() => setActiveIdx(i)}
+            className={`font-mono text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-md border transition-colors ${
+              activeIdx === i
+                ? "bg-foreground text-background border-foreground"
+                : "bg-card text-muted-foreground border-border hover:border-foreground/30"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Content */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={active.id}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
+          className="rounded-xl border border-border bg-card p-5"
+          style={{ boxShadow: "var(--shadow-card)" }}
+        >
+          <h4 className="font-display font-semibold text-foreground text-sm mb-3">{active.title}</h4>
+          <div className="grid sm:grid-cols-[1fr_auto] gap-5 items-center">
+            <div>
+              <div className="mb-3"><Tex math={active.formula} display /></div>
+              <PsyExample text={active.example} />
+            </div>
+            <div className="w-[240px] shrink-0">
+              <ProbVenn activeId={active.id} />
+            </div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════
    Page
    ═══════════════════════════════════════════ */
 const SetTheoryPage = () => (
@@ -938,7 +1107,7 @@ const SetTheoryPage = () => (
         Математический фундамент, на котором строятся выборки, диагностика и статистика.
       </p>
 
-      <Accordion type="multiple" defaultValue={["basics", "operations", "sampling", "diagnostics", "boolean", "cartesian", "relations", "functions"]} className="space-y-3">
+      <Accordion type="multiple" defaultValue={["basics", "operations", "sampling", "diagnostics", "boolean", "cartesian", "relations", "functions", "probability"]} className="space-y-3">
         {[
           { value: "basics", title: "Базовые понятия", content: <BasicsSection /> },
           { value: "operations", title: "Операции над множествами", content: <OperationsSection /> },
@@ -948,6 +1117,7 @@ const SetTheoryPage = () => (
           { value: "cartesian", title: "Декартово произведение и корреляционная матрица", content: <CartesianSection /> },
           { value: "relations", title: "Отношения и классификация", content: <RelationsSection /> },
           { value: "functions", title: "Функции и модели S → R", content: <FunctionsSection /> },
+          { value: "probability", title: "Мост к теории вероятностей", content: <ProbabilityBridgeSection /> },
         ].map((s, i) => (
           <motion.div
             key={s.value}
@@ -968,6 +1138,29 @@ const SetTheoryPage = () => (
           </motion.div>
         ))}
       </Accordion>
+
+      {/* CTA block */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4, ease: [0.2, 0.8, 0.2, 1] as const }}
+        className="mt-12 rounded-xl border border-border bg-card p-8 text-center"
+        style={{ boxShadow: "var(--shadow-card)" }}
+      >
+        <h3 className="font-display text-xl font-bold text-foreground mb-2">
+          Готовы к следующему шагу?
+        </h3>
+        <p className="text-sm text-muted-foreground font-body mb-5 max-w-md mx-auto">
+          Теперь, когда вы понимаете язык множеств, перейдите к математической статистике — там эти понятия оживают в данных.
+        </p>
+        <Link
+          to="/statistics"
+          className="inline-flex items-center gap-2 bg-foreground text-background font-display font-semibold text-sm px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
+        >
+          Математическая статистика
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </motion.div>
     </motion.div>
   </div>
 );
